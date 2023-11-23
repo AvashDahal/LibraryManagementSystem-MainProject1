@@ -21,7 +21,7 @@ public class Admin
     private String AdminAddress;
 
     @Column(name = "DOB")
-    private Date AdminDoB;
+    private Date adminDoB;
     @Column(name = "Email")
     private String AdminEmail;
     @Column(name = "Phone_No")

@@ -26,10 +26,14 @@ public class StudentController
    @Autowired
     private StudentService studentService;
 
-    @GetMapping("/getAll")
-    public ResponseEntity<List<StudentDto>> getAllStudents() {
-        List<StudentDto> students = studentService.getAllStudents();
-        return ResponseEntity.ok(students);
+    @GetMapping("/get")
+    public ResponseEntity<List<StudentDto>> getAllStudents()
+    {
+
+            List<StudentDto> students = studentService.getAllStudents();
+
+            return ResponseEntity.ok(students);
+
     }
 
    @PostMapping("/create")
@@ -41,22 +45,52 @@ public class StudentController
  @GetMapping("/{studentId}")
     public ResponseEntity <StudentDto> getStudentById(@PathVariable int studentId)
  {
-     StudentDto student = studentService.getStudentById(studentId);
-     return ResponseEntity.ok(student);
+     try {
+         StudentDto student = studentService.getStudentById(studentId);
+         if (student!=null)
+         {
+            return ResponseEntity.ok(student);
+         }
+         else
+         {
+             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+         }
+
+     }
+     catch (RuntimeException e)
+     {
+         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+     }
  }
- @PutMapping("/updateStudent")
-    public ResponseEntity<StudentDto> updateStudentById(@PathVariable int studentId,@Valid StudentDto studentDto)
+ @PutMapping("/update")
+    public ResponseEntity<String> updateStudentById(@PathVariable int studentId,@Valid StudentDto studentDto)
  {
-     StudentDto updatedStudent= studentService.updateStudentById(studentId, studentDto);
-     return ResponseEntity.ok(updatedStudent);
+     try
+     {
+         studentService.updateStudentById(studentId, studentDto);
+         return ResponseEntity.ok("The student is updated successfully");
+
+     }
+     catch (RuntimeException e)
+     {
+         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+     }
 
  }
- @DeleteMapping("/deleteStudents/{id}")
+ @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteStudentById(@PathVariable int id)
  {
-     studentService.deleteStudentById(id);
-     ResponseEntity<String> studentDeletedSuccessfully = ResponseEntity.ok("Student Deleted successfully");
-     return studentDeletedSuccessfully;
+     try{
+         studentService.deleteStudentById(id);
+         ResponseEntity<String> studentDeletedSuccessfully = ResponseEntity.ok("Student Deleted successfully");
+         return studentDeletedSuccessfully;
+
+     }
+     catch (RuntimeException e)
+     {
+         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+     }
+
  }
 @PostMapping("{student_id}/borrow/{book_id}")
     public ResponseEntity<String> borrowBook(@PathVariable int student_id,@PathVariable int book_id)

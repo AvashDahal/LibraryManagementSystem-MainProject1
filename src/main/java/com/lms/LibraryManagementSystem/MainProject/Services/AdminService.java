@@ -4,18 +4,21 @@ import com.lms.LibraryManagementSystem.MainProject.Dtos.AdminDto;
 import com.lms.LibraryManagementSystem.MainProject.entity.Admin;
 import com.lms.LibraryManagementSystem.MainProject.repositories.AdminRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class AdminService
 {
+    @Autowired
     private AdminRepository adminRepository;
-    private AdminDto adminDto;
+  @Autowired
     private ModelMapper modelMapper;
 
     public void createAdmin(AdminDto adminDto)
@@ -27,7 +30,7 @@ public class AdminService
     public List<AdminDto>getALlAdmins()
     {
         List<Admin> admins= adminRepository.findAll();
-        return admins.stream().map(admin->modelMapper.map(admins,AdminDto.class)).collect(Collectors.toList());
+        return admins.stream().map(admin->modelMapper.map(admin,AdminDto.class)).collect(Collectors.toList());
      /*   List<AdminDto>adminDtos= new ArrayList<>();
         for (Admin admin: admins)
         {
@@ -56,6 +59,7 @@ public class AdminService
             adminDto1.setAdminEmail(admin.getAdminEmail());
             adminDto1.setAdminDoB(admin.getAdminDoB());
             adminDto1.setAdminAddress(admin.getAdminAddress());*/
+
             return adminDto;
         }
         else
@@ -71,17 +75,22 @@ public class AdminService
         if (optionalAdmin.isPresent())
         {
             Admin admin = optionalAdmin.get();
-            modelMapper.map(adminDto,admin);
+            // Update the fields of the retrieved admin entity with the DTO's data
+            admin.setAdminAddress(adminDto.getAdminAddress());
+            admin.setAdminDoB(adminDto.getAdminDoB());
+            admin.setAdminEmail(adminDto.getAdminEmail());
+            admin.setPhoneNo(adminDto.getPhoneNo());
+
+            // Save the updated entity
             adminRepository.save(admin);
-            AdminDto updatedAdminDto= modelMapper.map(admin,AdminDto.class);
-            return updatedAdminDto;
+
+            // Return the updated DTO or any response as needed
+            return modelMapper.map(admin, AdminDto.class);
+        } else {
+            throw new RuntimeException("The Admin with ID: " + AdminId+ " is not found");
+        }
 
 
-        }
-        else
-        {
-            throw new RuntimeException("The Admin of :"+AdminId+"is not found");
-        }
 
     }
     public void deleteAdminById(int AdminId)
